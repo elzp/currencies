@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import CurrencyService from './currency-list.service';
 
 interface Currency {
   code: string;
@@ -7,19 +8,36 @@ interface Currency {
 
 @Component({
   selector: 'my-currency-list',
-  templateUrl: './currency-list.component.html'
+  templateUrl: './currency-list.component.html',
+  providers: [CurrencyService],
 })
-export class CurrencyListComponent implements OnInit  {
-
-  private API_URL = 'https://api.exchangeratesapi.io/latest?base=PLN';
-
+export class CurrencyListComponent implements OnInit {
   currencies: Currency[] = [];
+  symbols: any;
+  constructor(private currencyService: CurrencyService) {}
 
   ngOnInit() {
-    // Zamień ten fragment na rzeczywiste dane wykonując zapytanie GET pod this.API_URL
-    this.currencies = [
-      { code: 'GBP', value: 5.21}
-    ];
+    this.getAllSymbols();
+    console.log('h', this.currencies);
   }
-  
+
+  getAllSymbols(): void {
+    this.currencyService.getSymbols().subscribe((symbols) => {
+      this.symbols = Object.keys(symbols['symbols']);
+
+      this.makeCurrenciesOutput();
+    });
+  }
+
+  makeCurrenciesOutput() {
+    this.symbols.forEach((it: string) => {
+      this.currencyService
+        .getData(`https://api.exchangerate.host/convert?from=${it}&to=PLN`)
+        .subscribe((e) => {
+          this.currencies.push({ code: it, value: e['result'] });
+          // let arrayOfcurruencies=Object.keys(symbols["symbols"])
+          console.log({ code: it, value: e['result'] });
+        });
+    });
+  }
 }
