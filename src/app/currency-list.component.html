@@ -1,0 +1,8 @@
+<div>
+  <h2>Kursy walut (PLN)</h2>
+  <ul>
+    <li *ngFor="let currencyDetails of currencies">
+      {{currencyDetails.code}} - {{ currencyDetails.value}}
+    </li>
+  </ul>
+</div>
